@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<launch>
+    <arg name="filter_input_scan" default="/heroehs/snake_robot/scan" />
+    <arg name="filter_output_scan" default="/heroehs/snake_robot/scan_filtered" />
+    <arg name="assembler_frame" default="pelvis_link" />
+    <arg name="robot_joint_states" default="/robotis/present_joint_states" />
+    <arg name="use_goal_model" default="false" />
+
+    <!-- filtering laserscan -->
+    <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
+        <rosparam command="load" file="$(find snake_robot_lidar_assembler)/filters/shadow_filter.yaml" />
+        <remap from="scan" to="$(arg filter_input_scan)" />
+        <remap from="scan_filtered" to="$(arg filter_output_scan)" />
+    </node>
+
+    <!-- service to assemble laserscan to pointcloud -->
+    <node type="laser_scan_assembler" pkg="laser_assembler" name="snake_robot_lidar_assembler">
+        <remap from="scan" to="$(arg filter_output_scan)"/>
+        <param name="max_scans" type="int" value="600" />
+        <param name="fixed_frame" type="string" value="$(arg assembler_frame)" />
+        <param name="ignore_laser_skew" type="bool" value="true" />
+        <remap from="/assemble_scans2" to="/heroehs/snake_robot/assemble_scans" />
+    </node>
+
+    <!-- assemble laserscan -->
+    <node pkg="snake_robot_lidar_assembler" type="snake_robot_lidar_assembler" output="screen" name="snake_robot_lidar_assembler" />
+
+</launch>
