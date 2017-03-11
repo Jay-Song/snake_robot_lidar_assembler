@@ -40,7 +40,7 @@ void assembleLaserScans(ros::Time before_time, ros::Time end_time)
     sensor_msgs::PointCloud2 assembler_output = service.response.cloud;
     if (assembler_output.data.size() == 0)
     {
-      // ROS_INFO("No scan data");
+      ROS_INFO("No scan data");
       return;
     }
 
